@@ -1,6 +1,6 @@
 {
-  "name": "Rynn Api's",
-  "version": "Rynn UI",
+  "name": "GMC Api's",
+  "version": "GMC UI",
   "description": "Simple and Easy-to-Use API Documentation",
   "header": {
     "status": "Online!",
@@ -14,7 +14,7 @@
     }
   },
   "apiSettings": {
-    "creator": "Rynn"
+    "creator": "GMC"
   },
   "links": [
     {
@@ -60,6 +60,101 @@
           "name": "YouTube",
           "desc": "Video search",
           "path": "/search/youtube?q="
+        }
+      ]
+    },
+    {
+      "name": "Anime",
+      "items": [
+        {
+          "name": "Sokuja Latest",
+          "desc": "Episode terbaru",
+          "path": "/anime/sokuja/latest?page="
+        },
+        {
+          "name": "Sokuja Search",
+          "desc": "Cari anime",
+          "path": "/anime/sokuja/search?q=&limit="
+        },
+        {
+          "name": "Sokuja Detail",
+          "desc": "Detail anime",
+          "path": "/anime/sokuja/anime/one-piece-subtitle-indonesia"
+        },
+        {
+          "name": "Sokuja Episode",
+          "desc": "Stream episode",
+          "path": "/anime/sokuja/episode/one-piece-episode-1179-subtitle-indonesia"
+        },
+        {
+          "name": "Sokuja Genres",
+          "desc": "Daftar genre",
+          "path": "/anime/sokuja/genres"
+        }
+      ]
+    },
+    {
+      "name": "Movies",
+      "items": [
+        {
+          "name": "KawanFilm21 List",
+          "desc": "Daftar film",
+          "path": "/movies/kawanfilm21?page=&per_page="
+        },
+        {
+          "name": "KawanFilm21 Latest",
+          "desc": "Film terbaru",
+          "path": "/movies/kawanfilm21/latest"
+        },
+        {
+          "name": "KawanFilm21 Search",
+          "desc": "Cari film",
+          "path": "/movies/kawanfilm21/search?q="
+        },
+        {
+          "name": "KawanFilm21 Detail",
+          "desc": "Detail film",
+          "path": "/movies/kawanfilm21/movies/38724"
+        },
+        {
+          "name": "KawanFilm21 Downloads",
+          "desc": "Link download",
+          "path": "/movies/kawanfilm21/movies/38724/downloads"
+        },
+        {
+          "name": "KawanFilm21 TV",
+          "desc": "Daftar serial TV",
+          "path": "/movies/kawanfilm21/tv?page="
+        },
+        {
+          "name": "KawanFilm21 Stats",
+          "desc": "Statistik data",
+          "path": "/movies/kawanfilm21/stats"
+        }
+      ]
+    },
+    {
+      "name": "YouTube Video",
+      "items": [
+        {
+          "name": "YTUltra Info",
+          "desc": "Info + link media",
+          "path": "/yt/ytultra/info?url="
+        },
+        {
+          "name": "YTUltra Pick",
+          "desc": "Pilih kualitas",
+          "path": "/yt/ytultra/pick?url=&quality=720p"
+        },
+        {
+          "name": "Vynex Info",
+          "desc": "Info via vynex.ai",
+          "path": "/yt/vynex/info?url="
+        },
+        {
+          "name": "Vynex Link",
+          "desc": "Link video tertentu",
+          "path": "/yt/vynex/link?url=&height=720"
         }
       ]
     }
