@@ -86,8 +86,16 @@ ENDPOINT_INDEX = {
 }
 
 
+SEED_PAGES = max(1, int(os.environ.get("KF21_SEED_PAGES", "5")))
+
+
 def ensure_live(con, kind: str) -> None:
-    """If the DB has nothing for a kind, pull the first pages straight from upstream."""
+    """If the DB has nothing for a kind, scrape the first pages straight from upstream.
+
+    This is what makes the API deployable without shipping a database file: a
+    fresh install has an empty DB, and the first request seeds it live. Set
+    KF21_SEED_PAGES to control how many 100-item pages are pulled per kind.
+    """
     if kind in _LIVE_KINDS:
         return
     have = con.execute("SELECT COUNT(*) c FROM items WHERE kind=?", (kind,)).fetchone()["c"]
@@ -95,19 +103,40 @@ def ensure_live(con, kind: str) -> None:
         _LIVE_KINDS.add(kind)
         return
     try:
-        batch = up.page_items(kind, 1)
-        fm = [int(b["featured_media"]) for b in batch if b.get("featured_media")]
-        mm = up.media_urls(fm[:100])
-        tax_ids: dict = {}
-        for raw in batch:
-            row = scrape.build_row(kind, raw, mm)
-            store.upsert_item(con, kind, row)
-            for field in up.TERM_FIELDS.values():
-                ids = [int(i) for i in (raw.get(field) or []) if isinstance(i, int)]
-                store.set_terms(con, row["id"], kind, field, ids)
-                tax_ids.setdefault(field, set()).update(ids)
-        for tax, tids in tax_ids.items():
-            scrape.ensure_terms(con, tax, sorted(tids))
+        total = up.count(kind)
+        pages = min(SEED_PAGES, max(1, (total // 100) + 1))
+        print(f"seeding {kind}: {total} upstream, pulling {pages} page(s)", flush=True)
+        seen = 0
+        for page in range(1, pages + 1):
+            batch = up.page_items(kind, page)
+            if not batch:
+                break
+            fm = [int(b["featured_media"]) for b in batch if b.get("featured_media")]
+            mm = {}
+            for i in range(0, len(fm), 100):
+                try:
+                    mm.update(up.media_urls(fm[i:i + 100]))
+                except Exception:  # noqa: BLE001
+                    traceback.print_exc()
+            tax_ids: dict = {}
+            for raw in batch:
+                row = scrape.build_row(kind, raw, mm)
+                store.upsert_item(con, kind, row)
+                for field in up.TERM_FIELDS.values():
+                    ids = raw.get(field) or []
+                    if isinstance(ids, list) and ids and isinstance(ids[0], dict):
+                        ids = [t.get("id") for t in ids]
+                    clean = [int(i) for i in ids if isinstance(i, int)]
+                    store.set_terms(con, row["id"], kind, field, clean)
+                    tax_ids.setdefault(field, set()).update(clean)
+            for tax, tids in tax_ids.items():
+                try:
+                    scrape.ensure_terms(con, tax, sorted(tids))
+                except Exception:  # noqa: BLE001
+                    traceback.print_exc()
+            seen += len(batch)
+            print(f"  {kind}: page {page}/{pages} -> {seen}/{total}", flush=True)
+            time.sleep(0.25)
         _LIVE_KINDS.add(kind)
     except Exception:  # noqa: BLE001
         traceback.print_exc()
